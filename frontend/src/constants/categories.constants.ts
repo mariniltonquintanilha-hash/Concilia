@@ -1,8 +1,0 @@
-export const DEFAULT_CATEGORIES = {
-  SALARY: 'SALARY',
-  RENT: 'RENT',
-  SUPPLIER: 'SUPPLIER',
-  FEE: 'FEE',
-  TAX: 'TAX',
-  OTHER: 'OTHER',
-};
