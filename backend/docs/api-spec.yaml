@@ -1,0 +1,80 @@
+openapi: 3.0.0
+info:
+  title: Sistema de Conciliação Bancária
+  version: 1.0.0
+  description: API para conciliação bancária profissional com controles internos
+
+paths:
+  /reconciliations:
+    post:
+      summary: Criar nova reconciliação
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                periodStart:
+                  type: string
+                  format: date
+                periodEnd:
+                  type: string
+                  format: date
+                bankAccountId:
+                  type: string
+      responses:
+        '201':
+          description: Reconciliação criada
+        '403':
+          description: Permissão insuficiente
+
+  /reconciliations/{id}/submit-review:
+    post:
+      summary: Submeter para revisão
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Submetido para revisão
+        '400':
+          description: Divergências sem justificativa
+
+  /reconciliations/{id}/approve:
+    post:
+      summary: Aprovar reconciliação
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comments:
+                  type: string
+      responses:
+        '200':
+          description: Reconciliação aprovada
+        '403':
+          description: Revisor deve ser diferente do executor
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer

@@ -1,0 +1,3 @@
+-- Placeholder for initial data seeding
+-- INSERT INTO users (id, email, password_hash, full_name, role, is_active) VALUES
+-- ('a1b2c3d4-e5f6-7890-1234-567890abcdef', 'admin@example.com', '$2a$12$EXAMPLEHASH.hashedpassword', 'Admin User', 'ADMIN', TRUE);

@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: bank_reconciliation
+      POSTGRES_USER: bank_rec_user
+      POSTGRES_PASSWORD: secure_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/src/core/database/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - bank_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: bank_rec_user
+      DB_PASSWORD: secure_password
+      DB_NAME: bank_reconciliation
+      JWT_SECRET: your-secret-key-change-in-production
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    networks:
+      - bank_network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules # This line prevents host's node_modules from overriding container's
+    command: ["npm", "run", "start:prod"] # Ensure this starts the production build
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - bank_network
+    environment:
+      VITE_REACT_APP_API_URL: http://localhost:3001/api/v1 # Correct env var for Vite
+    command: ["npm", "run", "dev"] # Start dev server for frontend
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - bank_network
+    volumes:
+      - redis_data:/data
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      # - ./ssl:/etc/nginx/ssl # Uncomment if you have SSL certificates
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - bank_network
+
+networks:
+  bank_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
