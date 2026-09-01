@@ -1,0 +1,18 @@
+# Dependências
+node_modules/
+
+# Ambiente
+.env
+.env.local
+.env.production
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Sistema
+desktop.ini
+
+# Temporário
+tmp/
